@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Admin Dashboard</h2>
+            <button onclick="logout()" class="btn btn-outline-danger">Logout</button>
+        </div>
+
+        <div class="row g-4">
+            <!-- Register User -->
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm">
+                    <h5>Register User</h5>
+                    <form id="userForm">
+                        <input type="text" id="uName" class="form-control mb-2" placeholder="Full Name" required>
+                        <input type="text" id="uUser" class="form-control mb-2" placeholder="Username" required>
+                        <input type="password" id="uPass" class="form-control mb-2" placeholder="Password" required>
+                        <select id="uRole" class="form-select mb-2">
+                            <option value="STUDENT">Student</option>
+                            <option value="LECTURER">Lecturer</option>
+                        </select>
+                        <button class="btn btn-primary w-100">Add User</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add Course -->
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm">
+                    <h5>Add Course</h5>
+                    <form id="courseForm">
+                        <input type="text" id="cCode" class="form-control mb-2" placeholder="Course Code (e.g. CSC212)" required>
+                        <input type="text" id="cTitle" class="form-control mb-2" placeholder="Course Title" required>
+                        <button class="btn btn-success w-100">Add Course</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Assign Lecturer -->
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm">
+                    <h5>Assign Lecturer</h5>
+                    <form id="assignForm">
+                        <input type="number" id="aCourse" class="form-control mb-2" placeholder="Course ID" required>
+                        <input type="number" id="aLecturer" class="form-control mb-2" placeholder="Lecturer User ID" required>
+                        <button class="btn btn-warning w-100">Assign</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'ADMIN') window.location.href = '/index.html';
+
+        function logout() { localStorage.clear(); window.location.href = '/index.html'; }
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ name: uName.value, username: uUser.value, password: uPass.value, role: uRole.value })
+            });
+            alert('User Created');
+            e.target.reset();
+        });
+
+        document.getElementById('courseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/admin/courses', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ code: cCode.value, title: cTitle.value })
+            });
+            alert('Course Added');
+            e.target.reset();
+        });
+
+        document.getElementById('assignForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/admin/assign', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ courseId: parseInt(aCourse.value), lecturerId: parseInt(aLecturer.value) })
+            });
+            alert('Lecturer Assigned');
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>

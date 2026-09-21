@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5" style="max-width: 450px;">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center mb-4">Smart Campus Login</h3>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                </form>
+                <div id="alert" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const uname = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            try {
+                const resp = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: uname, password: pass })
+                });
+
+                const data = await resp.json();
+                if (data.status === 'success') {
+                    localStorage.setItem('user', JSON.stringify(data));
+                    
+                    if (data.role === 'ADMIN') window.location.href = '/admin.html';
+                    else if (data.role === 'LECTURER') window.location.href = '/lecturer.html';
+                    else if (data.role === 'STUDENT') window.location.href = '/student.html';
+                } else {
+                    const alertBox = document.getElementById('alert');
+                    alertBox.textContent = data.message;
+                    alertBox.classList.remove('d-none');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+            }
+        });
+    </script>
+</body>
+</html>

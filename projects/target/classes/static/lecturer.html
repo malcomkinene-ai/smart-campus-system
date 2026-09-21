@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecturer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Lecturer Dashboard</h2>
+            <button onclick="logout()" class="btn btn-outline-danger">Logout</button>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5>Mark Attendance</h5>
+                    <form id="attForm">
+                        <input type="number" id="attId" class="form-control mb-2" placeholder="Enrollment ID" required>
+                        <button class="btn btn-info text-white w-100">+1 Attendance</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5>Enter Marks</h5>
+                    <form id="markForm">
+                        <input type="number" id="mId" class="form-control mb-2" placeholder="Enrollment ID" required>
+                        <input type="number" id="mCw" class="form-control mb-2" placeholder="Coursework Mark (e.g. 30)" required>
+                        <input type="number" id="mExam" class="form-control mb-2" placeholder="Exam Mark (e.g. 50)" required>
+                        <button class="btn btn-success w-100">Save Marks</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'LECTURER') window.location.href = '/index.html';
+
+        function logout() { localStorage.clear(); window.location.href = '/index.html'; }
+
+        document.getElementById('attForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/lecturer/attendance', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ enrollmentId: parseInt(attId.value) })
+            });
+            alert('Attendance Recorded');
+            e.target.reset();
+        });
+
+        document.getElementById('markForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/lecturer/marks', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ enrollmentId: parseInt(mId.value), cw: parseFloat(mCw.value), exam: parseFloat(mExam.value) })
+            });
+            alert('Marks Recorded');
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>
